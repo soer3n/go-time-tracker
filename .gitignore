@@ -1,0 +1,15 @@
+# Binaries
+gtt
+tt
+main
+timetracker
+*.exe
+
+# GoReleaser output
+dist/
+
+# Editor / OS
+.DS_Store
+*.swp
+*.swo
+.claude
