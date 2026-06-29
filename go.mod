@@ -1,6 +1,8 @@
 module github.com/kubeone/go-time-tracker
 
-go 1.25.2
+go 1.24.2
+
+toolchain go1.24.5
 
 require (
 	github.com/charmbracelet/bubbles v1.0.0
