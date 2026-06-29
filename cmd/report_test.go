@@ -212,7 +212,7 @@ func TestReportCommand_RunsWithoutError(t *testing.T) {
 	// Smoke-test: the cobra command wires up and executes without panicking.
 	// We can't easily override dataDir() here, so we just confirm it exits cleanly
 	// for a date that has no data.
-	root := NewRootCmd()
+	root := NewRootCmd("test")
 	var buf bytes.Buffer
 	root.SetOut(&buf)
 	root.SetArgs([]string{"report", "2000-01-01"})

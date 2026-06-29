@@ -94,7 +94,7 @@ func (s *Storage) LoadDay(date time.Time) (*model.DayRecord, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	return parseMarkdown(record, f)
 }
@@ -127,15 +127,15 @@ func (s *Storage) ListDays() ([]time.Time, error) {
 // formatMarkdown serialises a DayRecord to markdown.
 func formatMarkdown(record *model.DayRecord) string {
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("# %s\n\n", record.Date.Format("2006-01-02 Monday")))
+	_, _ = fmt.Fprintf(&sb, "# %s\n\n", record.Date.Format("2006-01-02 Monday"))
 
 	for _, task := range record.Tasks {
 		if len(task.Entries) == 0 && task.Notes == "" {
 			continue
 		}
-		sb.WriteString(fmt.Sprintf("## %s\n", task.Profile.Name))
+		_, _ = fmt.Fprintf(&sb, "## %s\n", task.Profile.Name)
 		if task.Profile.Description != "" {
-			sb.WriteString(fmt.Sprintf("> %s\n", task.Profile.Description))
+			_, _ = fmt.Fprintf(&sb, "> %s\n", task.Profile.Description)
 		}
 		sb.WriteString("\n")
 		for _, e := range task.Entries {
@@ -143,14 +143,14 @@ func formatMarkdown(record *model.DayRecord) string {
 			if !e.End.IsZero() {
 				endStr = e.End.Format(timeLayout)
 			}
-			sb.WriteString(fmt.Sprintf("- %s – %s (%s)\n",
+			_, _ = fmt.Fprintf(&sb, "- %s – %s (%s)\n",
 				e.Start.Format(timeLayout),
 				endStr,
 				fmtDuration(e.Duration()),
-			))
+			)
 		}
 		if len(task.Entries) > 0 {
-			sb.WriteString(fmt.Sprintf("\n**Total: %s**\n", fmtDuration(task.TotalDuration())))
+			_, _ = fmt.Fprintf(&sb, "\n**Total: %s**\n", fmtDuration(task.TotalDuration()))
 		}
 		if task.Notes != "" {
 			sb.WriteString("\n")

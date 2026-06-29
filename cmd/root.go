@@ -27,12 +27,13 @@ func dataDir() string {
 	return filepath.Join(home, ".time-tracker")
 }
 
-func NewRootCmd() *cobra.Command {
+func NewRootCmd(version string) *cobra.Command {
 	root := &cobra.Command{
-		Use:   "gtt",
-		Short: "Terminal time tracker",
-		Long:  "A terminal-based time tracker that stores entries as Markdown files.",
-		RunE:  runTUI,
+		Use:     "gtt",
+		Short:   "Terminal time tracker",
+		Long:    "A terminal-based time tracker that stores entries as Markdown files.",
+		Version: version,
+		RunE:    runTUI,
 	}
 
 	root.AddCommand(newReportCmd())

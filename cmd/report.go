@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"io"
-	"sort"
 	"strings"
 	"time"
 
@@ -57,15 +56,15 @@ func writeReport(w io.Writer, errW io.Writer, store *storage.Storage, dates []ti
 	for _, date := range dates {
 		record, err := store.LoadDay(date)
 		if err != nil {
-			fmt.Fprintf(errW, "warning: could not load %s: %v\n", date.Format("2006-01-02"), err)
+			_, _ = fmt.Fprintf(errW, "warning: could not load %s: %v\n", date.Format("2006-01-02"), err)
 			continue
 		}
 
-		fmt.Fprintln(w, rptTitle.Render(fmt.Sprintf("\n%s", date.Format("Monday, January 2, 2006"))))
-		fmt.Fprintln(w, rptSep.Render(strings.Repeat("─", 50)))
+		_, _ = fmt.Fprintln(w, rptTitle.Render(fmt.Sprintf("\n%s", date.Format("Monday, January 2, 2006"))))
+		_, _ = fmt.Fprintln(w, rptSep.Render(strings.Repeat("─", 50)))
 
 		if len(record.Tasks) == 0 {
-			fmt.Fprintln(w, rptDim.Render("  No entries recorded."))
+			_, _ = fmt.Fprintln(w, rptDim.Render("  No entries recorded."))
 			continue
 		}
 
@@ -73,13 +72,13 @@ func writeReport(w io.Writer, errW io.Writer, store *storage.Storage, dates []ti
 		for _, task := range record.Tasks {
 			total := task.TotalDuration()
 			dayTotal += total
-			fmt.Fprintf(w, "  %-30s  %s\n", rptHeader.Render(task.Profile.Name), storage.FmtDuration(total))
+			_, _ = fmt.Fprintf(w, "  %-30s  %s\n", rptHeader.Render(task.Profile.Name), storage.FmtDuration(total))
 			for _, e := range task.Entries {
 				endStr := "ongoing"
 				if !e.End.IsZero() {
 					endStr = e.End.Format("15:04:05")
 				}
-				fmt.Fprintf(w, "    %s  %s – %s  (%s)\n",
+				_, _ = fmt.Fprintf(w, "    %s  %s – %s  (%s)\n",
 					rptDim.Render("·"),
 					e.Start.Format("15:04:05"),
 					endStr,
@@ -88,16 +87,16 @@ func writeReport(w io.Writer, errW io.Writer, store *storage.Storage, dates []ti
 			}
 			if task.Notes != "" {
 				lines := strings.Split(task.Notes, "\n")
-				fmt.Fprintf(w, "    %s  %s\n", rptDim.Render("↳"), rptDim.Render(lines[0]))
+				_, _ = fmt.Fprintf(w, "    %s  %s\n", rptDim.Render("↳"), rptDim.Render(lines[0]))
 				for _, line := range lines[1:] {
-					fmt.Fprintf(w, "       %s\n", rptDim.Render(line))
+					_, _ = fmt.Fprintf(w, "       %s\n", rptDim.Render(line))
 				}
 			}
 		}
-		fmt.Fprintln(w, rptSep.Render(strings.Repeat("─", 50)))
-		fmt.Fprintf(w, "  %-30s  %s\n", rptHeader.Render("Total"), storage.FmtDuration(dayTotal))
+		_, _ = fmt.Fprintln(w, rptSep.Render(strings.Repeat("─", 50)))
+		_, _ = fmt.Fprintf(w, "  %-30s  %s\n", rptHeader.Render("Total"), storage.FmtDuration(dayTotal))
 	}
-	fmt.Fprintln(w)
+	_, _ = fmt.Fprintln(w)
 	return nil
 }
 
@@ -168,12 +167,3 @@ func truncateDay(t time.Time) time.Time {
 	return time.Date(y, m, d, 0, 0, 0, 0, t.Location())
 }
 
-// listAllDays returns all recorded days sorted ascending.
-func listAllDays(store *storage.Storage) ([]time.Time, error) {
-	days, err := store.ListDays()
-	if err != nil {
-		return nil, err
-	}
-	sort.Slice(days, func(i, j int) bool { return days[i].Before(days[j]) })
-	return days, nil
-}
